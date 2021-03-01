@@ -1,0 +1,22 @@
+
+#background {
+  background-image: ;
+}
+
+h1 {
+  text-align: center;
+}
+
+img {
+  width: 200px;
+  height: 300px;
+}
+
+#movieDIV {
+  display: grid;
+  gap: 1rem;
+  grid-auto-flow: column;
+  grid-template-columns: repeat(auto-fit, minmax(min-content, 1fr));
+}
+
+
