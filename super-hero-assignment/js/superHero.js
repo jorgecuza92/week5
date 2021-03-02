@@ -16,7 +16,7 @@ request.addEventListener('load', function() {
                           <p> ${movie.Title}</p></a>
                           <p>Year: ${movie.Year}</p>
                           <p>imdbID: ${movie.imdbID}</p>
-                          <button onclick=movieDetails('${movie.imdbID}')>Show Movies</button>
+                          <button onclick=movieDetails('${movie.imdbID}')>Movie Details</button>
                         </div>
                         `
   })
