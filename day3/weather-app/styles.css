@@ -1,0 +1,71 @@
+html {
+  background: url(droplets.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  font-family: 'Work Sans', sans-serif;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Work Sans', sans-serif;
+  color: white;
+
+  
+}
+
+::-webkit-input-placeholder {
+  font-family: 'Work Sans', sans-serif;
+
+}
+
+html {
+  display: table;
+  margin: auto;
+}
+
+body {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+
+
+div {
+  font-size:larger;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+  opacity: 1;
+}
+
+.container {
+  color: black;
+  background-color: white;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  opacity: 0.67;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+  
+}
+
+li#textItem {
+  opacity: 1;
+}
+
+#cityTextBox {
+  height: 50px;
+  width: 200px;
+  -webkit-border-radius: 10px;
+  opacity: 0.67
+}
+
+button {
+  height: 50px;
+  -webkit-border-radius: 10px;
+  font-family: 'Work Sans', sans-serif;
+
+  color: black;
+  border: 2px solid black;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
