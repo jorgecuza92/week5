@@ -1,0 +1,328 @@
+Week 5 Day 4 Notes
+
+Friday we will start a bit on group projects - create repos, add all collaborators, figure out what features you want. Lecture will be Agile principles and working with Github while in groups - how to resolve issues, merge conflicts, etc.
+
+***WEATHER APP/PROMISES ASSIGNMENT REVIEW***
+
+
+HTML:
+<div id="weatherDIV"></div>      //can be whatever element you wish to display the result
+
+
+JS: 
+const weatherURL = 'http://api.openweathermap.org/data/2.5/weather?q=yadayadaetc'
+
+function getWeather() {
+  fetch(weatherURL
+    .then(response) => response.json()
+    .then(result) => {
+      console.log(result)
+    })
+
+}
+
+getWeather()
+
+Now we can see the details of our response object. But we only want to get the temp and humidity. How do we target them?  Dot notation.
+
+With SRP ("single responsibility principle"), you want each function to do only one job. So we want the display to be in a different function.
+
+function getWeather() {
+  fetch(weatherURL
+    .then(response) => response.json()
+    .then(result) => {
+      displayWeather(result)
+    })
+
+}
+
+function displayWeather(weather) {
+  const weatherItem = `
+			<h1>Temperature: ${weather.main.temp}
+			<h3>Humidity: ${weather.main.humidity}</h3>
+  weatherDIV.innerHTML = weatherItem
+}
+
+But we don't want to link getWeather irretrievably to displayWeather - maybe we want the option to display it in other ways. So we use a callback.
+
+
+function getWeather(onWeatherLoaded) {
+  fetch(weatherURL)
+    .then(response) => response.json()
+    .then(result) => {
+      onWeatherLoaded(result)
+    })
+
+}
+
+function displayWeather(weather) {
+  const weatherItem = `
+			<h1>Temperature: ${weather.main.temp}
+			<h3>Humidity: ${weather.main.humidity}</h3>
+  weatherDIV.innerHTML = weatherItem
+}
+
+
+Then when we call getWeather, we do it like this:
+getWeather(displayWeather)
+
+This would work just the same if you had a greet function you called this way:
+
+function greet(a) {
+  console.log(a)
+}
+
+getWeather(greet) - this will print the weather object to the console (because it got passed to greet from getWeather).
+
+In the DevTools, you can mouseover onWeatherLoaded and a tiptool will pop up telling you what function onWeatherLoaded is referring to in what you are currently running.
+
+
+Question from Younus - how does the "result" from getWeather become "weather" in displayWeather?
+Per Azam - the result in getWeather is the weather object we got from the server. This then gets passed as the argument to the displayWeather function, and within displayWeather, it then gets called "weather". But it's the same data.
+
+
+***ASYNC & AWAIT***
+There's yet another "more modern syntax" version to do this; MDN has good documentation on it if you want to know more. But let's give it a shot.
+
+You can wait for a promise to resolve using "await" rather than using .then, but you must use async for it to work.
+
+async function getWeather(onWeatherLoaded) {
+  let response = await fetch(weatherURL)
+  let result = await response.json()
+  onWeatherloaded(result)
+}
+
+This gives us the same result as our .then, .then, but in less code/cleaner code.
+
+***GEOLOCATION***
+You can put this in a button click or page load event if you want.
+
+First, we need to see if the browser even allows us to get the geolocation.
+
+If it does, the getCurrentPosition argument takes 2 functions, one for success, one for error (error one can be empty function.
+
+function showUserLocation () {
+  if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      console.log(position)
+  }, function() {})
+
+  } else {
+      console.log("Geolocation not available")
+}
+
+It can take a bit of time for the browser to get your position. (Be sure your location services are turned on within your OS as well.) In Chrome, you may need to make your site https and/or push your page to an actual live Surge page for it to work.
+
+Azam started to run into the same issues that many of us did who were trying to make this work yesterday.  For now, we will move on to other topics.
+
+***FIREBASE***
+
+Will allow you to persist/save information via Google's service. This will help in your UI project.
+
+Not an official part of the DigitalCrafts curriculum, but could be helpful.
+
+Make sure you have a Google account and that you're logged in, and go to firebase.google.com.
+
+Cloud Firestore is a database that stores your data on Google's servers. 
+
+There are other features available that you scan see on the same page, including several Azam has not worked with.  Realtime Database is similar to Cloud Firestore, but slightly older. You don't need to use all of these, just whatever you find helpful.
+
+console.firebase.google.com will take you to your user dashboard and let you create a new project. You will need to name your project, decide whether you want Google Analytics, and select your Google account.  (Analytics is data for you to see how your customers use your product - it's not Google collecting data on you.)  Once it's created your project it will take you to your project dashboard. You will be able to see at the top of the page that you're on the "Spark" plan (the free one).  You can select whether you're creating for iOS, Android, Web, or Unity(games).  We're developing for the Web.
+
+It will give you a chunk of script code to put in your HTML page at the end of your <body> tag. This is needed to initialize your app on Firebase.
+
+Add the link to your own JS file last, after all of this.
+
+Now we've initialized our platform - to use a specific service, we'll need to select it and get started. Go to Cloud Firestore and click on Create Database. Select "Start in test mode". Then we'll need to connect our database and our application.  Go to the documentation and click on Web, then click on Cloud Firestore on the left, then "Get Started". Within this documentation under "Set up your development environment" there will be two script tags. We need the second one, which refers to "firebase-firestore.js". Copy this one and add it right new the top of the chunk of script tags in your HTML - just below the first "firebase app" script.
+
+Then at the bottom of the script chunk, just below the two "initialize Firebase" commands (and ABOVE your custom JS file), add:
+var db = firebase.firestore();
+
+Now let's go to our custom JS and try to run this with console.log(db)
+We should get a weird object - and we do!  This demonstrates that the database is initialized and connected to our app.  We can now access our database at any point by using the db variable.
+
+Firestore allows you to save a nested structure of data, much like JSON.
+
+
+Now let's add a textbox and button to our HTML and JS to see if we can save our data.
+
+const taskNameTextBox = document.getElementById("taskNameTextBox")
+const addTaskButton = document.getElementById("addTaskButton")
+
+addTaskButton.addEventListener("click", function() {
+
+  const taskName = taskNameTextBox.value
+
+// collection is a grouping, somewhat like a table or an array. If the collection does not yet exist, it will be created.
+
+  db.collection("tasks")        
+    .add({
+      name: taskName
+    })
+})
+
+You may need to refresh your Cloud Firestore page to see your entered/saved data. 
+
+The funky collection of letters and numbers in the middle column is a unique ID assigned by Google to each entry. Azam thinks there is a way to create this ID yourself (somewhere in the documentation), but it's better to just let Google assign this random string. If you enter two different "mow lawn" tasks, they will be assigned separate IDs by this process (as they should).
+
+Now your data will persist unless/until you delete it. You can refresh a browser, restart your machine, etc. You can even access the same database with a separate application you create - say you want to create a related Android app, for example.
+
+What if we also want to add a priority to our tasks?
+
+HTML - add an input box for priority
+
+
+JS:
+const taskNameTextBox = document.getElementById("taskNameTextBox")
+const taskPriorityTextBox = document.getElementById("taskPriorityTextBox")
+const addTaskButton = document.getElementById("addTaskButton")
+
+addTaskButton.addEventListener("click", function() {
+
+  const taskName = taskNameTextBox.value
+  const taskPriority = taskPriorityTextBox.value
+
+// collection is a grouping, somewhat like a table or an array. If the collection does not yet exist, it will be created.
+
+  db.collection("tasks")        
+    .add({
+      name: taskName
+      priority: taskPriority
+    })
+})
+
+
+So how do we retrieve our saved data?  There are ways to filter, etc. in the documentation, but if you just want all the data:
+
+function getAllTasks() {
+  db.collection("tasks")
+    .get()    
+    .then((snapshot) => {  
+      console.log(snapshot)      
+    })
+}
+
+//snapshot is a representation of the datbase at that specific moment. Your users could be adding/deleting immediately after you took the snapshot. The snapshot will appear as an object when printed. We can loop through that object to print out individual elements.
+
+function getAllTasks() {
+  db.collection("tasks")
+    .get()    
+    .then((snapshot) => {  
+      snapshot.forEach((doc) => {
+        let data = doc.data()
+        console.log(data)   
+    })
+}
+
+The forEach method loops through the object. The .data method makes each entry readable.  Now we can add individual properties within it to our HTML via innerHTML. Let's create a place to put our info:
+
+<ul id="tasksUL"></ul>
+
+function getAllTasks() {
+  db.collection("tasks")
+    .get()    
+    .then((snapshot) => {  
+      snapshot.forEach((doc) => {
+        let data = doc.data()
+        let taskItem = `<li>${data.name)</li>`
+        tasksUL.insertAdjacentHTML('beforeend', taskItem) 
+    })
+}
+
+We used insertAdjacentHTML because when you're looping through a list, using innerHTML gets memory intensive (it reads back a whole string, adds a bit to it, and writes back the whole string - rather than just appending the new bit).
+
+So, how do we call getAllTasks if we want the page to display the list each time we add a new task?
+
+  db.collection("tasks")        
+    .add({
+      name: taskName
+      priority: taskPriority
+    }).then(function(DocRef) {
+        getAllTasks()
+    })
+})
+
+How do we clear the contents of the taskUL so we're not adding multiples of the entire list?
+
+function getAllTasks() {
+  tasksUL.innerHTML = ""
+  db.collection("tasks")
+    .get()    
+    .then((snapshot) => {  
+      snapshot.forEach((doc) => {
+        let data = doc.data()
+        let taskItem = `<li>${data.name)</li>`
+        tasksUL.insertAdjacentHTML('beforeend', taskItem) 
+    })
+}
+
+
+Firebase is not required for your project, but can help if you want to save data. It is used mostly by startups and smaller companies, because it creates a large dependency on Google (what if they decided to shut it down?)  "Killed By Google" is a list of all the products Google once supported and are now defunct. They don't do it without prior warning, but still.
+
+***ACTIVITY 1 - SET UP FIREBASE DATABASE***
+
+
+How do we build a delete button with the tasks? To delete a task, you need that funky random string that serves as the unique ID. How do we access that?
+
+Let's console.log our data variable to see if there's some property inside that gives us the ID.  The "id" field looks promising...yep, if we console.log(data.id) we get those IDs back.
+
+
+function getAllTasks() {
+  tasksUL.innerHTML = ""
+  db.collection("tasks")
+    .get()    
+    .then((snapshot) => {  
+      snapshot.forEach((doc) => {
+        let data = doc.data()
+        let taskItem = `<li>${data.name)</li>
+			<button onclick="deleteTask()">Delete Task</button>`
+        tasksUL.insertAdjacentHTML('beforeend', taskItem) 
+    })
+}
+
+
+function deleteTask() {
+  console.log("delete task fired")
+}
+
+So this works. Now let's pass it the document ID. Don't forget to wrap your template literal in quotes so it's passed as a string.
+
+
+function getAllTasks() {
+  tasksUL.innerHTML = ""
+  db.collection("tasks")
+    .get()    
+    .then((snapshot) => {  
+      snapshot.forEach((doc) => {
+        let data = doc.data()
+        let taskItem = `<li>${data.name)</li>
+			<button onclick="deleteTask('${doc.id}')">Delete Task</button>`
+        tasksUL.insertAdjacentHTML('beforeend', taskItem) 
+    })
+}
+
+function deleteTask(documentId) {
+  db.collection("tasks")
+    .doc(documentId)
+    .delete()
+    .then(() => {
+      getAllTasks()
+    })
+}
+
+
+This is deleting both from our interface and from Firestore. Then it refreshes the visible list on our HTML page.
+
+
+***ASSIGNMENT - GROCERY APP***
+
+You can create up to 10 projects at a time on Firebase (in theory, if you're approaching 10, you can contact Google Support and they'll bump you up to 100).  You can set this up as a new project or just use the interface you created for Activity 1.  
+
+HARD MODE - ignore the bit about user registration and authentication.
+
+Nested data - adding items to grocery stores - this will require a lot of reading the documentation
+
+
+Question from Neil - if we want to use Firebase for our projects, how can multiple people collaborate?  In the project settings, there is a place to add other owners.
+
+Per Azam - make sure every person works on every layer of the project. Don't assign "you do the CSS, he does the JS, etc". That's ok for a day's worth of work, but switch it up day to day.  We'll talk more about it tomorrow.

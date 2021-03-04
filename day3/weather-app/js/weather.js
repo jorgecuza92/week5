@@ -19,11 +19,13 @@ function getAllInfo() {
     }).then((info) => {
       console.log(info)
       let infoItems =
-                    ` <h1>${city}</h1>
+                    ` <div id='insideContainer'
+                      <h1 id='header'>${city}</h1>
                       <li id="textItem">Temperature: ${info.main.temp}°F</li>
                       <li id="textItem">Maximum Temperature: ${info.main.temp_max}°F</li>
                       <li id="textItem">Minimun Temperature: ${info.main.temp_min}°F</li>
                       <li id="textItem">Pressure: ${info.main.pressure} mbar</li>
+                      </div>
                     `
       infoUL.innerHTML = infoItems
     })

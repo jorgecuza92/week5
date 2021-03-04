@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grocery App</title>
+</head>
+<body>
+  <h1>Grocery Delivery Service</h1>
+  <label for="stores">Choose a grocery store: </label>
+<select name="stores" id="stores" aria-placeholder="storesa">
+  <option value="heb">HEB</option>
+  <option value="kroger">Kroger</option>
+  <option value="traderJoes">Trader Joes</option>
+  <option value="Sprouts">Sprouts</option>
+
+
+
+
+</select><br><br>
+<input type='text' id='nameTextBox' placeholder="first and last name">
+<input type='text' id='addressTextBox' placeholder="enter your address">
+<input type='text' id='groceryItemTextBox' placeholder="enter desired groceries">
+<button id='btnSubmit'>Submit</button>
+
+
+<ul id='infoUL'></ul>
+
+
+
+
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-firestore.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-analytics.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  var firebaseConfig = {
+    apiKey: "AIzaSyBXvE8afnES2bxwwwL7txsGwEM8HtzRFfo",
+    authDomain: "movies-d96c3.firebaseapp.com",
+    databaseURL: "https://movies-d96c3-default-rtdb.firebaseio.com",
+    projectId: "movies-d96c3",
+    storageBucket: "movies-d96c3.appspot.com",
+    messagingSenderId: "799350110417",
+    appId: "1:799350110417:web:c70f47e93563f121412df0",
+    measurementId: "G-PCSLZEGQKK"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+  var db = firebase.firestore();
+</script>
+  <script src="js/grocery.js"></script>
+</body>
+</html>

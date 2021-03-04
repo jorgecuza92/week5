@@ -11,8 +11,10 @@ html, body {
   height: 100%;
   font-family: 'Work Sans', sans-serif;
   color: white;
+}
 
-  
+h1#header {
+  font-size: 100px;
 }
 
 ::-webkit-input-placeholder {
@@ -36,7 +38,7 @@ div {
   font-size:larger;
   -webkit-text-stroke-width: 1px;
   -webkit-text-stroke-color: black;
-  opacity: 1;
+  
 }
 
 .container {
@@ -49,15 +51,13 @@ div {
   
 }
 
-li#textItem {
-  opacity: 1;
-}
-
 #cityTextBox {
   height: 50px;
   width: 200px;
   -webkit-border-radius: 10px;
-  opacity: 0.67
+  opacity: 0.67 !important
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+
 }
 
 button {

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+  <input type='text' id='taskNameTextBox'>
+  <input type='text' id='taskPriorityTextBox'>
+
+  <button id='addTaskButton'>Task</button>
+
+
+  <ul id='tasksUL'></ul>
+
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-firestore.js"></script>
+
+  <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+  <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-analytics.js"></script>
+
+  <script>
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    var firebaseConfig = {
+      apiKey: "AIzaSyAWTy4H61GYc6Bwh97JOlFZdaNZWSupn-U",
+      authDomain: "fir-eb7f1.firebaseapp.com",
+      projectId: "fir-eb7f1",
+      storageBucket: "fir-eb7f1.appspot.com",
+      messagingSenderId: "293445613642",
+      appId: "1:293445613642:web:d7d53460f443b7a66f0eb3",
+      measurementId: "G-S3LBJL82ZK"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+    var db = firebase.firestore();
+
+  </script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
