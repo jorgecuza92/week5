@@ -1,61 +1,65 @@
-const stores = document.getElementById('stores')
-const nameTextBox = document.getElementById('nameTextBox')
+const storeNameTextBox = document.getElementById('storeNameTextBox')
 const addressTextBox = document.getElementById('addressTextBox')
-const groceryItemTextBox = document.getElementById('groceryItemTextBox')
 const btnSubmit = document.getElementById('btnSubmit')
-const infoUL = document.getElementById('infoUL')
 
-btnSubmit.addEventListener('click', function() {
-  
-  const store = stores.value
-  const name = nameTextBox.value 
-  const address = addressTextBox.value 
-  const items = groceryItemTextBox.value 
+const searchStoreTextBox = document.getElementById('searchStoreTextBox')
+const btnSearchStore = document.getElementById('btnSearchStore')
+const displayStoreInfoUL = document.getElementById('displayStoreInfoUL')
 
-  // add function automatically creates a unique id for each item
-  db.collection('info')
+btnSubmit.addEventListener('click', function () {
+
+
+  const store = storeNameTextBox.value
+  const address = addressTextBox.value
+
+  db.collection('stores')
     .add({
-      store: store,
-      name: name,
-      address: address,
-      items: items
-    }).then(function(docRef) {
-        getAllInfo()
+      name: store,
+      address: address
+    }).then(function (docRef) {
+      getAllStores()
     })
-  
+
+  storeNameTextBox.value = ''
+  addressTextBox.value = ''
+
 })
 
 
-function deleteInfo(documentId) {
-  db.collection('info')
-    .doc(documentId)
-    .delete()
-    .then(() => {
-      getAllInfo()
-    })
-}
 
+function getAllStores() {
 
-function getAllInfo() {
-  // clear the contents of infoUL
-  infoUL.innerHTML = ''
+  displayStoreInfoUL.innerHTML = ''
 
-  db.collection('info')
+  db.collection('stores')
     .get()
     .then((snapshot) => {
       snapshot.forEach((doc) => {
+        console.log(doc)
         console.log(doc.id)
         let data = doc.data()
-        let groceryItems = `
-            <li>
-              <label>${data.items}</label><button onclick="deleteInfo('${doc.id}')">delete</button>
-            </li>
-        `
-        
-        infoUL.insertAdjacentHTML('beforeend', groceryItems)
+        let groceryStore = `<li>
+                                <h2>${data.name}</h2>
+                                <h6>${data.address}</h6>
+                                <button onclick="deleteStore('${doc.id}')">Delete Store</button>
+                           </li>`
+
+        displayStoreInfoUL.insertAdjacentHTML('beforeend', groceryStore)
 
       })
+
     })
+
+
 }
 
-getAllInfo()
+function deleteStore(documentId) {
+  db.collection("stores")
+        .doc(documentId)
+        .delete()
+        .then(() => {
+            getAllStores()
+        })
+}
+
+getAllStores()

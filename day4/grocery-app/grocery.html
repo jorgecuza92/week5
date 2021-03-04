@@ -8,25 +8,16 @@
   <title>Grocery App</title>
 </head>
 <body>
-  <h1>Grocery Delivery Service</h1>
-  <label for="stores">Choose a grocery store: </label>
-<select name="stores" id="stores" aria-placeholder="storesa">
-  <option value="heb">HEB</option>
-  <option value="kroger">Kroger</option>
-  <option value="traderJoes">Trader Joes</option>
-  <option value="Sprouts">Sprouts</option>
+  <h1>Grocery Online Service</h1>
+  <label for="stores">Enter a grocery store: </label>
+  <input type='text' id='storeNameTextBox' placeholder='enter a grocery store'>
+  <input type='text' id='addressTextBox' placeholder="enter your address">
+  <button id='btnSubmit'>Submit</button>
 
+  <input type='text' id='searchStoreTextBox' placeholder="search store">
+  <button id='btnSearchStore'>Search</button>
 
-
-
-</select><br><br>
-<input type='text' id='nameTextBox' placeholder="first and last name">
-<input type='text' id='addressTextBox' placeholder="enter your address">
-<input type='text' id='groceryItemTextBox' placeholder="enter desired groceries">
-<button id='btnSubmit'>Submit</button>
-
-
-<ul id='infoUL'></ul>
+<ul id='displayStoreInfoUL'></ul>
 
 
 
