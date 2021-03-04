@@ -106,11 +106,8 @@ btnDelete.addEventListener('click', function() {
   let emailAddress = searchTextBox.value 
   let request = new XMLHttpRequest()
   request.addEventListener('load', function() {
-    let deletion = JSON.parse(this.responseText)
-    let deleteItems = `${deletion.email}`
-    if(emailAddress === deleteItems) {
-      return ''
-    }
+    displayOrders(orders)
+    
   })
   request.open('DELETE', `https://troubled-peaceful-hell.glitch.me/orders/${emailAddress}`)
   request.send()

@@ -1,0 +1,284 @@
+Week 5 Day 3 Notes
+
+curl - linux commands - get/post from terminal. Basically provides the same functionality as Postman.
+
+***LIVESHARE - USING OMDb API****
+
+We'll start by creating the request
+
+let request = new XMLHttpRequest()      
+
+//this ^^ is used to perform asynchronous requests. Why is async helpful? Internet traffic is like a road; a request, much like an 18-wheeler, can back things up. We want to "send it off on a back road" and let the rest of the code continue to operate and meet back up at their ultimate destination. The request will run in the background and let everything else keep operating, rather than freezing up your mouse, dropdowns, etc.
+
+So what else do we need?
+
+request.addEventListener("load", function() {
+})
+
+request.open('GET', 'website goes here')
+request.send()
+
+
+At this point, how can we tell, without writing any more code, that our request went through?  DevTools - refresh the page to fire our existing code, then go to the Network tab and you can see your request and its response. If you click on Preview, you can see it in a nicer format.
+
+Okay, so now what?
+
+We need to convert our data (which, remember, is coming in as a string) to JSON.  (The string needs to be valid JSON to work.)
+
+request.addEventListener("load", function() {
+  let result = JSON.parse(this.responseText)
+})
+
+request.open('GET', 'website goes here')
+request.send()
+
+If we console.log(result), we see that there is an array, but it's not at the top level. To get down to that level we need to go in one further.
+
+const moviesUL = document.getElementById("moviesUL")
+
+request.addEventListener("load", function() {
+  let result = JSON.parse(this.responseText)
+  let movieItems = result.Search.map((movie) => {
+    return `<li>${movie.Title}</li>`
+  })
+  moviesUL.innerHTML.movieItems.join("")
+
+})
+
+
+***PROMISES***
+
+XMLHttpRequest method is used less often out in the field these days (but is good for building understanding); the more common method now is promises.
+
+Promises are like the restaurant buzzer you are given when you show up and they currently have no open tables. Your request will be fulfilled at some future point.  They are not inherently linked to internet requests but are definitely used for that purpose.
+
+There is a Promise class in JS that takes in a function which itself takes in two arguments - resolve and reject. These can be named anything you want but those are the easiest names because that's their function.  Resolve is "hey, we're ready for you now, here's your table". Reject is "sorry, it's our closing time now so we won't be able to seat you after all".
+
+let promise = new Promise (function(resolve, reject) {
+  resolve()
+
+})
+
+promise.then(function() {
+  console.log("Promise has been resolved.")
+})
+
+When you call resolve(), it fires whatever code is in your then function. (Usually an anonymous function.)
+
+What about reject? We add a .catch directly after the .then, and the .catch code is fired upon reject.
+
+let promise = new Promise (function(resolve, reject) {
+  reject("Oops")
+
+})
+
+promise.then(function() {
+  console.log("Promise has been resolved.")
+}).catch(function(error) {
+  console.log(error)
+})
+
+You can also have your resolve() pass an argument to your .then function. You can have multiple .thens in a chain and pass arguments between them. For the .thens, you have to make sure each one returns that argument so the next one can use it.
+
+let promise = new Promise (function(resolve, reject) {
+  resolve([1, 2, 3, 4, 5]
+
+})
+
+promise.then(function(numbers) {
+  console.log("Promise has been resolved.")
+  return numbers
+}).then(function(numbers){
+  return numbers.map((num) => num * 2)
+}).then(function(doubledNumbers) {
+  console.log(doubledNumbers)
+}).catch(function(error) {
+  console.log(error)
+})
+
+
+SO -- how do you we use promises to perform a network call?  
+
+We use the fetch library already built into JS.
+
+***FETCH***
+
+You pass fetch a URL and it returns you a promise.
+
+fetch('http://www.omdbapi.com/?s=Batman&page=2&apikey=whatever')
+.then((response) => {
+  console.log(response)
+})
+
+We can see that the response we get is a response object, not a string and not JSON.  So what do we do? There is a built-in .json() function that we can use; let's see what that looks like.
+
+fetch('http://www.omdbapi.com/?s=Batman&page=2&apikey=whatever')
+.then((response) => {
+  console.log(response.json())
+})
+
+We can see now we get a Promise object. So we need another .then before we can print.
+
+fetch('http://www.omdbapi.com/?s=Batman&page=2&apikey=whatever')
+  .then((response) => {
+    return response.json()     // we need to *return* this so it will be passed to the next .then
+  }).then((result) => {       //"result" here can be named anything you want
+    console.log(result)
+  })
+
+This gives us our JSON-formatted data that we can work with (innerHTML, appendLI, etc).  This is the equivalent of the whole new XMLHttpRequest, addEventListener, JSONparse, request.open, request.send - but in much less code!
+
+
+Let's try this again and access some of the data we've received.
+
+fetch("https://jsonplaceholder.typicode.com/posts")
+
+If we console.log this, we see again that fetch returns a Promise object.
+
+So to resolve this, we need a .then:
+
+fetch("https://jsonplaceholder.typicode.com/posts")
+  .then(response) => {
+    return response.json()      // remember, this has to be return to be passed!
+  }).then(result) => {
+    console.log(result)
+  })
+
+The fetch library also contains POST, DELETE, etc. But by default without further specification, it will be a GET request.
+
+
+***ACTIVITY - GET ALL COFFEE ORDERS***
+
+Using the same API as yesterday. Create an order using Postman or using the page you built yesterday, then create an app using fetch to list all the coffee orders on a page.
+
+consts postsUL = document.getElementById("postsUL")
+
+function getAllPosts() {
+  let result = []
+  fetch("https://jsonplaceholder.typicode.com/posts")
+    .then((response => {
+      return response.json()
+    }).then(posts) => {
+      result = posts
+    })
+  return result
+})
+
+This ^^^ would give us an empty array, because the code completes and returns the result before we got a response back.
+
+WHY does JavaScript do this, where Python would just wait until receiving a response before continuing to execute the rest of the code? Because it's designed with browsers in mind. If it takes 10 seconds to load the response, that's 10 seconds where everything on your page is frozen and the user can't do anything. This is obviously not ideal.
+
+So how do we solve this?  Callbacks.
+
+getAllPosts(function(posts) {
+  console.log(posts)
+})
+
+Then we revamp our function to take a callback/"once stuff loads" argument.
+
+function getAllPosts(onPostsLoaded) {
+  let result = []
+  fetch("https://jsonplaceholder.typicode.com/posts")
+    .then((response => {
+      return response.json()
+    }).then(result) => {
+      onPostsLoaded(result)
+    })
+}
+
+***POST USING FETCH***
+
+fetch("https://jsonplaceholder.typicode.com/posts", {
+  method: 'POST'
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: {       //what is included within body changes to match whatever keys your API is using
+    title: 'Hello World',
+    body: 'Hello World Body',
+    userId: 100
+  })
+})
+
+What if we want to display the response?  We again need a .then
+
+fetch("https://jsonplaceholder.typicode.com/posts", {
+  method: 'POST'
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({       //what is included within body changes to match whatever keys your API is using
+    title: 'Hello World',
+    body: 'Hello World Body',
+    userId: 100
+  })
+}).then(response => {
+    return response.json()
+}).then (result => {
+    console.log(result)
+})
+
+
+ACTIVITY 2 - ADD COFFEE ORDER USING PROMISES/FETCH
+
+Just like Activity 1, but now we're adding an order.
+
+HTML:
+
+<input type="text" id="emailTextBox" placeholder="email" />
+<input type="text" id="coffeeTypeTextBox" placeholder="type" />
+<input type="text" id="sizeTextBox" placeholder="size" />
+<input type="text" id="priceTextBox" placeholder="price" />
+<button id="orderCoffeeButton">Order Coffee</button>
+
+JS:
+Declare all your variables with document.getElementById. Some browsers will help you out with this and automatically declare them behind the scenes using the variable name, but it's better to be explicit.
+
+const emailTextBox = document.getElementById("emailTextBox")
+const coffeeTypeTextBox = document.getElementById("coffeeTypeTextBox")
+etc, etc.
+
+orderCoffeeButton.addEventListener('click', () => {
+  const order = {
+    email: emailTextBox.value
+    type: coffeeTypeTextBox.value
+    size: sizeTextBox.value
+    price: parseFloat(priceTextBox.value)
+  }
+  
+  submitOrder(order)
+
+})
+
+function submitOrder(order) {
+  fetch("https://troubled-peaceful-hell.glitch.me/orders", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+    body: JSON.stringify(order)
+  }).then(response => response.json())
+  .then(result => console.log(result)
+}
+
+Based on the response we get from this particular site, with its success boolean, we can write code to fire if success == true
+
+function submitOrder(order) {
+  fetch("https://troubled-peaceful-hell.glitch.me/orders", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+    body: JSON.stringify(order)
+  }).then(response => response.json())
+  .then(result => {
+    if(result.success) {            // if(result.success) is equivalent to if(result.success == true)
+      //reload all coffee orders
+    }
+}
+
+
+***ASSIGNMENT - WEATHER APP***
+Use OpenWeatherMap API to get the live weather. 
+
+Hard Mode: allow app to use current location of the user to fetch the weather.  JS has a geolocation function - the MDN docs explain it in more detail. This returns latitude/longitude. Open Weather has an API call that you can then pass these values to.

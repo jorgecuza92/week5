@@ -1,0 +1,271 @@
+Week 5 Day 2 Notes
+
+OVERVIEW - SUPERHERO MOVIE APP
+
+Be sure to name your variables and functions in ways that will be clear to someone reading code behind you.
+
+
+Most code within the .addEventListener can often be separated out into a different function to make it reusable. Try to make your functions do only one job as much as possible.
+
+
+Don't submit a completed app with old/commented-out code. If you have been periodically pushing to GitHub as you work, GitHub will maintain the version history.
+
+
+Netlify is another free service like Surge; both can be used to get a live version of your site.
+
+
+Question from Lane:
+CORS Error - problem is on server end
+(cross-origin request service)
+
+You will see this error printed out on the console, rather than getting the data you expected.
+
+What causes this error? The server is (possibly incorrectly) blocking the client as unauthorized access.
+
+
+***POST***
+Requests to obtain data from server are always GET requests, like we did yesterday. You can see this in the DevTools, if you click on the Network tab, select some piece of data on the left, then click on Headers - you'll see it listed as a GET request. 
+
+POST, on the other hand, is creating data and sending it to the server. When you create a new account on a website, for example, POST is involved.
+
+The first thing you want to do is confirm that your POST request will go through.
+
+jsonplaceholder.typicode.com is a place we can try this out.  We get a URL from the website we want to post to; in their documentation, they will show you what test information to pass and what their output will look like.
+
+If you just type that URL directly into the browser, it will show you all the previous posts. How can the same URL show existing posts and let you create a new one?  That's why GET vs POST are so important. 
+
+So how do we confirm that their information is correct? We don't want to start by just writing code, because they do occasionally give the wrong URL. If you've put five hours into writing code before you discover this, well, 1) that sucks, and 2) you're more likely to think it's something YOU did wrong instead of them.  So always check and confirm their URL first.  We do this with the Postman app (postman.com/downloads). There is also a Chrome plug-in, but the app is the one that is getting regular updates.  There are other tools that do the same thing (Insomnia, etc) if you do a search.
+
+We need to make sure our request is a POST request (we can check GET as well, but we can also do that just by putting the URL directly into any browser.
+
+We then need to enter our test data in valid JSON format. This is done under the "Body" tab. Make sure your keys match the keys given in the test information. Any keys that don't match will be ignored. So don't put "name" if it's really "title", match caps, etc.
+
+Then we have to tell the server we are sending JSON. Under Headers, we enter Content-Type under Key and application/json under value. Headers are additional information included in the request to tell the server something about the request - the data type (JSON/PDF/ZIP), what device (mobile/desktop/etc) the request is coming from, sometimes the API key, etc.
+
+Then hit Send. We should get back data in the form listed in their testing information.
+
+If it doesn't work in Postman, it won't work in JavaScript!  But this does work, so we can get started.
+
+HTML:
+<input type="text" id="titleTextBox" placeholder="Title" />
+<input type="text" id="userIdTextBox" placeholder="User ID" />
+<input type="text" id="bodyTextBox" placeholder="Body" />
+<button id="addPostButton">Add Post</button>
+
+
+JS:
+const titleTextBox = document.getElementById("titleTextBox")
+const userIdTextBox = document.getElementById("userTextBox")
+const bodyTextBox = document.getElementById("bodyTextBox")
+const addPostButton = document.getElementById("addPostButton")
+
+addPostButton.addEventListener("click", function() {
+  const title = titleTextBox.value
+  const userId = userIdTextBox.value
+  const body = bodyTextBox.value
+
+  let request = new XMLHttpRequest()
+  request.addEventListener("load", function() {
+    console.log(this.responseText)
+  })
+
+  request.open('POST', "urlgoeshere") 
+  request.send
+
+})
+
+
+But wait...we never actually sent the title, user ID, and body! If we try this in our HMTL and hit Add Post, all we get back is a dictionary with "id: 101". So basically we sent up a blank post, because the only thing that came back was the server-side ID.
+
+So to send these three things, we need to create an object and send that object. Below our other const variables, let's add:
+
+  const requestParams = {
+    title: title,
+    userId: userId,
+    body: body
+  }
+
+
+The value variable names can be anything we want; they don't have to match the keys. If they are the same, per Clarence, you may be able to just write "title", "userId", and "body", rather than "title: title", etc.
+
+Now we have our object, BUT you can only pass primitive types (string, boolean, integer, etc) over HTTP. So we need to make our object into a string. Luckily there is a method built in to do just that. JSON.stringify is the opposite of JSON.parse - it will turn our object into a string.
+
+So let's test this out:
+console.log(requestParams)
+console.log(JSON.stringify(requestParams))
+
+If we put in some breakpoints, we can see this happen step-by-step. We can see the object printed out just as an object - it lets you drill down, values are highlighted in another color, etc.  After JSON.stringify has done its work, all the characters are still there, but you can't drill down and it's all one color - it's a string now.
+
+So let's update our request.send to include our stringified data:
+
+request.send(JSON.stringify(requestParams)
+
+Wait, this is still off...it's because we didn't set the headers like we did on Postman.
+
+request.setRequestHeader('Content-Type', 'application/json')
+
+Also our userID comes through as a string; let's fix that:
+
+const requestParams = {
+        title: title, 
+        userId: parseInt(userId), 
+        body: body 
+    }
+
+Why are two "posts" showing up under Network? One is the "Options" request done automatically by the browser. Don't worry too much about it for now. It's basically the browser checking if the request can be done, just like we did before starting to code.
+
+Now, if you want a response, we added an event listener above for that - you can add whatever code you want there, just like we did yesterday.
+
+
+ACTIVITY 1 - STOCK QUOTES
+
+Display all the stocks, let the user add a new stock.
+
+HTML:
+<ul id = "stocksUL"></ul>
+
+JS:
+const stocksUL = document.getElementById("stocksUL")
+let request = new XMLHttpRequest()
+request.addEventListener('load', function () {
+  let stocks = JSON.parse(this.responseText)
+  stocks.map(stock) => {
+    return `<li>
+ 		<b>${stock.title}</b>
+		<p>${stock.symbol}</p>
+		<p>$${stock.price}</p>
+		<p>${stock.quantity}</p>
+		<p>Amount Invested in ${stock.symbol}: $${stock.quantity * stock.price}</p>
+		</li>`
+})
+ 
+stocksUL.innerHTML = stocks.join("")
+
+})
+
+request.open('GET', 'https://endurable-bead-polo.glitch.me/stocks')
+request.send()
+
+
+let's refactor this to put it into two separate functions:
+
+function fetchStocks() {
+  let request = new XMLHttpRequest()
+  request.addEventListener('load', function () {
+    let stocks = JSON.parse(this.responseText)
+    displayStocks(stocks)
+  })
+})
+
+function displayStocks(stocks) {
+  stocks.map((stock) => {
+    return `<li>
+ 		<b>${stock.title}</b>
+		<p>${stock.symbol}</p>
+		<p>$${stock.price}</p>
+		<p>${stock.quantity}</p>
+		<p>Amount Invested in ${stock.symbol}: $${stock.quantity * stock.price}</p>
+		</li>`
+  })
+
+  stocksUL.innerHTML = stocks.join("")
+
+}
+
+So this is better, but not ideal. Right now, fetchStocks() always calls displayStocks(), which is not ideal if you're wanting to display the information on a mobile, or just on the console, etc.  These functions would be described as "tightly coupled", which is not what you want.
+
+How can we give more control to the person calling fetchStocks, to display the data how they want?  This can be done using callbacks. Instead of calling a function within the body of fetchStocks, we will pass it a function as variable.
+
+function fetchStocks(onStocksLoaded) {
+  let request = new XMLHttpRequest()
+  request.addEventListener('load', function () {
+    let stocks = JSON.parse(this.responseText)
+    onStocksLoaded()
+  })
+})
+
+This will now let us do either of the following (or more):
+
+fetchStocks(function(stocks) {
+  displayStocks(stocks)
+})
+
+fetchStocks(function(stocks) {
+  displayStocksOnConsole(stocks)
+})
+
+Where displayStocksOn console is something like:
+
+function(displayStocksOnConsole(stocks) {
+  console.log(stocks)
+})
+
+
+
+Now, to actually add a stock and do the POST bit:
+
+HTML - add input fields for title, symbol, price, quantity, and button??
+
+<button id="addStockButton"></button>
+
+JS: 
+addStockButton.addEventListener("click", function() {
+  //collect values from the text boxes
+
+  addStock(title value, symbol value, etc.)
+}
+
+
+function addStock(title, symbol, price, quantity) {
+  let request = new XMLHttpRequest()
+  let requestParams = {
+    title: title,
+    symbol: symbol,
+    price: parseFloat(price),
+    quantity: parseInt(quantity)
+  }
+
+  request.setRequestHeader('Content-Type', 'application/json')
+  request.open('POST', 'https://endurable-bead-polo.glitch.me/stocks')
+  request.send(JSON.stringify(requestParams))  
+
+}
+
+If you want to fetch all the stocks after you add your stock, you'll need to pass a callback within the addStock function:
+
+function addStock(title, symbol, price, quantity, onStockAdded) {
+  let request = new XMLHttpRequest()
+
+request.addEventListener("load", function() {
+  if(this.status == 200) {
+    onStockAdded()
+  }
+
+//rest of function same as above
+
+})
+
+Then we also need to reset our displayStocks function so that it always starts with a clean slate right at the beginning:
+
+stocksUL.innerHTML = ""
+
+
+This can get complicated with all these callbacks, but you will see this out in the field.
+
+Start with the code that makes sense to you - you can pull things into different functions and add callbacks once everything is working the way you want.
+
+
+***DELETE***
+Delete from within code:
+
+request.open('DELETE', url)
+
+For today's assignment, the url will include the user e-mail, likely with a template literal.
+
+
+***ASSIGNMENT - COFFEE ORDERS***
+
+Always use Postman to check the validity of your URLs before getting started; make sure they work.
+We identified a problem with the DELETE request on the server end for today's assignment while going through it in class, and now it's fixed.
+
+Search for order will only return you one record, even if there are ten from one person; that's just how the server is.

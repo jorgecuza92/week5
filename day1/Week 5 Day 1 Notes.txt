@@ -1,0 +1,330 @@
+Week 5 Day 1 Notes
+
+Projects - This Friday is "soft start" - maybe not a start to coding, but planning out and researching how you'll complete the project. Next Friday starting at 11 cst/12 est we will all present our finished projects. Over the week this week Azam will have more info on the project expectations, and how we work together (Agile principles, Github collaboration, etc.). Right now, just be putting your groups together and get an idea of what you want your project to be.
+
+One-line description of project is fine for adding to the pinned spreadsheet.
+
+This week we will cover asynchronous requests and consuming APIs. Everywhere Azam has worked, this has been part of the workflow.
+
+***WHAT IS AN API?***
+Application Programmable Interface 
+
+The website Zillow has hundreds of real estate listings - prices, pictures, description, etc. Say you are building a mobile app - you're not interested in Zillow's look and feel, but you want the data. Could you just inspect the page and get the HTML? Sure, but again, that's a lot of extraneous information, a lot of elements we don't need, and as soon as Zillow changes their interface, some of this data might go away. So that's not great either.
+
+An API allows you to access the underlying data.
+
+If you google Zillow API, you can see the API they use; requires sign-up, etc.  OMDb is another (an open version of IMDb).  For each company's API, you will need to read the documentation to know how to access what you want. Each one is different. Some are free, some are paid. Many of the paid ones have some sort of limited free version. Usually the paid APIs allow more requests and/or provide access to more specialized info (like the road safety API on OpenWeatherMap is paid).
+
+If we go into the OMDb data, notice the data format - most of the time it is in JSON format. You will occasionally get XML format from a few.
+
+Most APIs will ask you to pass in the API key - this is so they can shut you off if your code does something funky (like it gets stuck in an infinite loop of sending requests 1000s of times a second).
+
+OpenWeather is another API. They have their own app, but maybe you want to display the data in a different way, or just make weather info a small part of your overall application.
+
+For most APIs, you will need to sign up/sign in, and they will send an API key to your e-mail. Don't share the key with anyone; it's you who will get dropped if their code does something funky while using their key.
+
+Copy the key - all requests will need a key to work. Copy/paste the URL for the request you want - replace the placeholder for the API key with the key you have received. And there's the data! (Not all APIs use this method of submitting the API key - be sure to read your documentation).
+
+Most anything you can imagine has some sort of API out there for it. Make sure that they're free and will accept you as a new client.
+
+Some APIs only allow endpoints to get the data - they are giving you data to display. But say your outside thermometer is showing a different temperature than the weather that OpenWeather is showing for your area - you can't upload that new into to the provider.
+
+BUT - some do allow this!
+
+Example - pet adoption website - you may be able to both get data on all the pets who currently need a home, AND submit a new pet to the site.
+
+Some APIs will have code in their documentation that you will need to use in order to access their data.
+
+The more practice you get with consuming APIs, the better you'll get. 
+
+Clients send requests to servers - Servers return a response. For now we are just the client end until we get to back-end in Week 7.
+
+Client requests to Servers can have many different types:
+1) GET request - asking for some kind of information. Response from server - JSON or XML data
+Whatever way they provide the data, you have to work with it. Whatever temp/rain measurement units they use, if it's in an array vs an object, etc.  When you are the server, then you can provide data in whatever format you wish.
+
+So we have our API key, our URL (containing the API key), and thus our data. How do we write code to display this data?
+
+Copy the URL at the top of your JS file and assign it to a variable.
+
+const weatherURL = "http//api.biglonguglyopenweatherAPIurlforHoustonincludingyourAPIkey"
+
+let request = new XMLHttpRequest()  
+//XMLHttpRequest is a request object built in to JS, works equally on XML or JSON
+
+request.open('GET', weatherURL)
+request.send()
+
+//.open and .send are methods of the XMLHttpRequest object
+
+
+If you run this and go look in the Network tab of your DevTools, you can see the weather URL listed as one of your sources, and click on Preview to see what you are getting back.  
+
+In order to handle the response, you have to attach EventListeners to the request object. But what event? There won't be any clicks or mouseovers associated with this action. It's the "load" event.
+
+const weatherURL = "http//api.biglonguglyopenweatherAPIurlincludingyourAPIkey"
+let request = new XMLHttpRequest()  
+
+request.addEventListener("load", function() {
+  console.log(this)
+}
+
+request.open('GET', weatherURL)
+request.send()
+
+What do you think the "this" will be that prints out? It should be the request object. If we look at this in the console, we can see it. Two of its properties, "response" and "responseText", look to contain the data we want.
+
+In our HTML, let's add:
+<h1 id="tempHeading></h1>
+<h1 id="humidityHeading></h1>
+
+Then in JS, set them to variables with .getElementById
+const tempHeading = document.getElementById("tempHeading"
+const humidityHeading = document.getElementById("humidityHeading")
+
+now, let's try:
+request.addEventListener("load", function() {
+  console.log(this.responseText)
+}
+
+
+This prints as one big string; it's not formatted like JSON data. We can't access individual properties (this.humidity) like we did last week. So we need to get it into JSON format; luckily there's a built-in function for that.  This only works if the text is a **valid** JSON string.
+
+request.addEventListener("load", function() {
+  console.log(this.responseText)
+  let result = JSON.parse(this.responseText)
+  console.log(result)
+}
+
+Now we can see it's in the format we want and we can access it using dot notation.
+
+request.addEventListener("load", function() {
+  console.log(this.responseText)
+  let result = JSON.parse(this.responseText)
+  console.log(result)
+
+  tempHeading.innerHTML = result.main.temp
+  humidityHeading.innerHMTL = result.main.humidity
+}
+
+We can use template literals as we did before to add text or other formatting to our HTML.
+
+Why are we not running a map? Maps are only for arrays.
+
+What if we want to change this so the user can enter any city and it will look up the weather for that city?
+
+we'll add in our HTML:
+<input type = "text" id "cityTextBox" />
+<button id = "getWeatherButton">Get Weather</button
+
+and JS:
+
+const cityTextBox = document.getElementById("cityTextBox")
+const getWeatherButton = document.getElementById("getWeatherButton")
+
+Now we need a way to change the URL based on the city entry. We can make a function using template literals:
+
+function getWeatherURLByCity(city) {
+  return `http://api.biglonguglyopenweatherAPIurlfor${city}includingyourAPIkey"
+}
+
+This will give us the weather we want.
+
+getWeatherButton.addEventListener('click', function () {
+  const city = cityTextBox.value
+  const weatherURL = getweatherURLByCity(city)
+  console.log(weatherURL)
+
+  let request = new XMLHttpRequest()
+  request.addEventListener('load', function() {
+    let result = JSON.parse(this.responseText)  
+    let weatherMessage = `Temp: ${result.main.temp}, Humidity ${result.main.humidity}
+    tempHeading.innerHTML = result.main.temp
+    humidityHeading.innerHTML = result.main.humidity
+  })
+
+  request.open('GET', weatherURL)
+  request.send()
+})
+
+Question from Katherine - what if we enter a city that's not tracked in their API? The API has defaults written in to display "city not found" as a 404.
+
+Question from Zachary Murphy - what if we enter a city where multiple cities share that name? If you enter Springfield, whatever Springfield is set as the default in their API is the one that will display.  Shawn noticed that OpenWeatherMap has another API available that includes a state code as well, which would let us for a state from our user to narrow it down.
+
+ACTIVITY 1 - CAT FACTS
+
+HTML:
+<h1>Cat Facts:</h1>
+<ul id="catFactsUL"></ul>
+
+
+JS:
+
+let request = new XMLHttpRequest()
+let catURL = "https://cat-fact.herokuapp.com/facts"
+
+request.open('GET', catURL)
+request.send()
+
+This shows us the response info in the console log. But obviously we want to display it.
+
+
+let request = new XMLHttpRequest()
+let catURL = "https://cat-fact.herokuapp.com/facts"
+request.addEventListener('load', function() {
+  let result = JSON.parse(this.responseText)
+  console.log(result)
+})
+
+request.open('GET', catURL)
+request.send()
+
+This prints an array of cat facts to the console. So let's display it on the page:
+
+request.addEventListener('load', function() {
+  let result = JSON.parse(this.responseText)
+  let catItems = result.map(function(fact) {
+    return `<li>${fact}</li><br>`
+  })
+  catFactsUL.innerHTML = catItems.join("")
+})
+
+We could add the display of any other properties we wish into the template literal.
+  let catItems = result.map(function(fact) {
+    return `<li>${fact.text} - ${fact.createdAt}</li><br>`
+  })
+
+
+Question from Shawn - do request.open and request.send need to be at the end of your code/if so, why?
+Per Azam - they don't need to be at the end, they can be anywhere you want.
+
+Question from Younus - what is the "fact" in the map function above referring to? This is our chosen variable to represent each item of the array. You could call it anything you want, so long as you then use that same variable to access your properties - fact.text, etc.
+
+
+ACTIVITY 2 - DOG PICS
+
+This is similar to the previous activity, but we need to add all of our activity to a button, and we need our HTML to generate an image.
+
+HTML:
+<button id="btnRandomPhoto"></button>
+<div id="photoDIV"></div> (you can use a header here or other control if you want)
+
+JS: 
+
+let btnRandomPhoto = document.getElementById("btnRandomPhoto")
+let photoDIV = document.getElementById("photoDIV")
+let dogURL = "https://dog.ceo/api/breeds/image/random"
+
+btnRandomPhoto.addEventListener('click', function() {
+  let request = new XMLHttpRequest()
+  request.addEventListener('load', function() {
+    let dogPhotoResponse = JSON.parse(this.responseText)
+    let dogIMG = `<img src="${dogPhotoResponse.message}" />`
+    photoDIV.innerHTML = dogIMG
+    
+    })
+
+    request.open('GET', dogURL)
+    request.send()
+})
+
+
+
+ASSIGNMENT - SUPERHEROES
+
+Uses OMDb API - get an API key under the free account type. Use your own API key unless you absolutely cannot get it to work.  Give them 5-10 minutes to send your API key to your e-mail.
+
+You will be using 2 different OMDb APIs for this assignment - one to display all the movies, and one that provides more info about each movie when the user clicks on it.  The first API will provide the IMDb ID - this will be needed in the URL for the second API.
+
+Start with displaying all the movies - then figure out how to get their IMDb IDs into a link or button, then figure out how to get that into the URL for that request.
+
+You will need two different XMLHttpRequest objects.
+
+Later this afternoon we will do a small review - not of the entire assignment, though.
+
+
+TOMORROW - we will learn how to POST - provide new data to the API. This is what is happening behind the scenes whenever you create a new account online, apply for a driver's license online, etc.
+
+
+***SMALL REVIEW FOR MOVIES API ASSIGNMENT***
+
+request.onload = function() {
+do stuff here
+}
+
+This ^^ is the equivalent of 
+request.addEventListener('load', function() {
+do stuff here
+}
+
+The onload version can be "onclick", "onmouseover", etc. It combines the listener with the event you're listening for.
+
+
+request.addEventListener("load", function() _
+  const result = JSON.parse(this.responseText)
+//if you try to map this, it won't work, because the data is not an array at that level. However, if you drill down one level to the search results, that IS an array.
+
+  const movieItems = result.Search.map((movie) => {
+    return `<li>
+		<b>${movie.Title}</b>
+		<img src="${movie.Poster}">
+		yada yada yada
+	    </li>
+             `
+  moviesUL.innerHTML = movieItems.join("")
+
+})
+
+
+Once you get it displaying, you can add a button or a link within the <li> item you are building.  You can add a placeholder/dummy link to your anchor tag by entering <a href="#">Show Details</a>.
+
+To pass the imdb into the button/function call, we need to surround the template literal with quote marks, because we want to pass it as a string. Without the quote marks, you'll get an error saying your IMDB ID is not defined.
+
+button onclick = "getMovieDetails('${movie.imdbID}')">Show Details</button>
+
+function getMovieDetails(imdbID) {
+  console.log(imdbID)
+}
+
+From here you can adjust your function to call a new request and display your movie details.
+
+Be sure to create a new request object for your details request, otherwise it will always just try to call the first one - the search for all movies matching your hero.
+
+function getMovieDetails(imdbID) {
+  let movieDetailRequest = new XMLHttpRequest()
+  movieDetailRequest.addEventListener('load', function () {
+    const movieDetail = JSON.parse(this.responseText)
+    const movieDetailItem = `<div>
+                               <h3>${movieDetail.Title}</h3>
+                             yada yada display goes here
+                             </div>` 
+    movieDetailDIV.innerHTML = movieDetailItem
+  }
+  movieDetailRequest.open('GET', `http://omdbapi.com/?i=${imdbID}&apikey=564727fa`)
+  movieDetailRequest.send()
+}
+
+Don't forget to add a <div> element in your HTML to hold/display your detail information!
+
+
+General practice - go out and find free APIs that match your interests; try to get them to display on a webpage.
+
+Question from Neil - can we make the movie details display on a new page?
+
+Inside our movieItems template literal, we'd create an anchor tag and pass in the IMDB ID as part of the link.
+
+new page HTML with new script file
+<h1>Show Details</h1>
+div id="movieDetailsDIV></div>
+
+
+<script>
+  const movieDetailsDIV = document.getElementByID("movieDetailsDIV")
+
+  const urlParams = new URLSearchParams(window.location.search)
+  const movieId = urlParams.get("movieId")
+  console.log(movieId)
+</script>
+
+From there it's the same as the getMovieDetails function we've already done.
+
